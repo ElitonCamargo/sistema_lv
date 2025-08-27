@@ -21,15 +21,15 @@ app.get('/',(req,res)=>{
         dominio_raiz : rootDomain,
         atualização: '14/09/2024 - 18:42',
         rotas:{
-            'GET - Consultar veículo': `${rootDomain}/api/veiculo`,
-            'GET - Consultar todos os veículos': `${rootDomain}/api/veiculos`,
-            'POST - Cadastrar veículo':`${rootDomain}/api/veiculo`
+            'GET - Consultar veículo': `${rootDomain}/veiculo`,
+            'GET - Consultar todos os veículos': `${rootDomain}/veiculos`,
+            'POST - Cadastrar veículo':`${rootDomain}/veiculo`
         }
     });
 });
 
 // Configurando as rotas
-app.use('/api', veiculoRoute);
+app.use('/', veiculoRoute);
 //app.use('/api', categoriaRoute);
 
 const PORT = process.env.PORT || 3000; 
