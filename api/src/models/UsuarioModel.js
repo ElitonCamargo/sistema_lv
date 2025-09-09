@@ -26,7 +26,7 @@ export const cadastrar = async (usuario, cx = null) => {
         const query = `INSERT INTO Usuario (email ,senha ,nome ,avatar) VALUES (?, ?, ?, ?)`;
 
         // Executar a query com os valores do usuário
-        const [result] = await cx.query(query,[email ,hashSenha ,nome ,avatar]);
+        const [result] = await cxLocal.query(query,[email ,hashSenha ,nome ,avatar]);
     
         // Verificar se a inserção foi bem-sucedida
         if (result.affectedRows === 0) {
@@ -40,7 +40,7 @@ export const cadastrar = async (usuario, cx = null) => {
         // Lançar o erro para ser tratado pelo chamador
         throw error; 
     } finally{
-        if (cxLocal) {
+        if (!cx && cxLocal) {
             cxLocal.release(); // Liberar a conexão de volta ao pool
         }
     }
@@ -72,7 +72,7 @@ export const consultarPorEmail = async (email, cx = null) => {
         // Lançar o erro para ser tratado pelo chamador
         throw error; 
     } finally{
-        if (cxLocal) {
+        if (!cx && cxLocal) {
             cxLocal.release(); // Liberar a conexão de volta ao pool
         }
     }
@@ -104,8 +104,42 @@ export const consultarPorId = async (id, cx=null) => {
         // Lançar o erro para ser tratado pelo chamador
         throw error; 
     } finally{
-        if (cxLocal) {
+        if (!cx && cxLocal) {
             cxLocal.release(); // Liberar a conexão de volta ao pool
         }
     }
 }
+
+export const login = async (email, senha) => {
+    // Obter uma conexão do pool
+    const cx = await pool.getConnection(); 
+    try {
+        // Consultar o usuário pelo email
+        const usuario = await consultarPorEmail(email, cx);   
+        
+        // Verificar se o usuário existe
+        if (!usuario) {
+            throw new Error("Usuário ou senha incorretos");
+        }
+
+        // Verificar se a senha está correta
+        const senhaCorreta = bycrypt.compareSync(senha, usuario.senha);
+        if (!senhaCorreta) {
+            throw new Error("Usuário ou senha incorretos");
+        }
+
+        // Remover a senha do objeto usuário antes de retornar
+        usuario.senha = undefined;
+        
+        // Retornar o usuário autenticado
+        return usuario; 
+    } catch (error) {
+        // Lançar o erro para ser tratado pelo chamador
+        throw error; 
+    } finally {
+        if (cx) {
+            cx.release(); // Liberar a conexão de volta ao pool
+        }
+    }
+}
+
