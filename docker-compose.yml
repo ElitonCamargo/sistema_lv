@@ -1,0 +1,71 @@
+services:
+  api:
+    image: node:18
+    container_name: lv_api
+    working_dir: /usr/src/app
+    volumes:
+      - ./api:/usr/src/app
+    ports:
+      - "3000:3000"
+    environment:
+    # Variáveis de ambiente para configuração do banco de dados
+      # Produção
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_USER=lv_user
+      - DB_NAME=sistema_lv
+      - DB_PASSWORD=lv_password
+      - DB_WAIT_CONNECTIONS=true
+      - DB_CONN_LIMIT=10
+      - DB_QUEUE_LIMIT=50
+      - DB_CONN_TIMEOUT=5000
+      # Desenvolvimento
+      - DEV_DB_HOST=db
+      - DEV_DB_PORT=3306
+      - DEV_DB_USER=root
+      - DEV_DB_NAME=sistema_lv
+      - DEV_DB_PASSWORD=root
+      - DEV_DB_WAIT_CONNECTIONS=true
+      - DEV_DB_CONN_LIMIT=10
+      - DEV_DB_QUEUE_LIMIT=50
+      - DEV_DB_CONN_TIMEOUT=5000
+      # Variável de ambiente para definir o ambiente (development ou production)
+      - NODE_ENV=development
+    depends_on:
+      - db
+    command: sh -c "npm install && npm run dev"
+
+  app:
+    image: node:18
+    container_name: lv_app
+    working_dir: /usr/src/app
+    volumes:
+      - ./app:/usr/src/app
+    tty: true
+    ports:
+      - "8081:8081"
+    command: sh -c "npm install && npm run web"
+    environment:
+      - NODE_ENV=development
+      - EXPO_PUBLIC_API_LOCAL=http://api:3000
+      - EXPO_PUBLIC_API_URL=https://api.dominio.com.br
+    depends_on:
+      - api
+
+  db:
+    image: mysql:8.0
+    container_name: lv_mysql_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=sistema_lv
+      - MYSQL_USER=lv_user
+      - MYSQL_PASSWORD=lv_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+    name: lv_db_data
