@@ -21,7 +21,7 @@ app.get('/',(req,res)=>{
         dominio_raiz : rootDomain,
         atualização: '14/09/2024 - 18:42',
         rotas:{
-            'GET - teste': `${rootDomain}/api/teste`
+            'GET - teste': `${rootDomain}/api/teste/teste`
         }
     });
 });
