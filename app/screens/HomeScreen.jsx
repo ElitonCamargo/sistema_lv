@@ -20,17 +20,12 @@ export default function HomeScreen({ navigation }) {
                     navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
                     return;
                 }
+                // Obtendo usuário armazenado na key usuario do AsyncStorage
+                
+                const userLogin = await AsyncStorage.getItem('usuario');
 
-                // tenta buscar dados do usuário (se sua API oferecer /usuario/me)
-                if (BASE_URL) {
-                    const res = await fetch(`${BASE_URL}/usuario/me`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    if (res.ok) {
-                        const json = await res.json();
-                        if (mounted) setUser(json.data || json.user || json);
-                    }
-                }
+                setUser(JSON.parse(userLogin));
+
             } catch (e) {
                 console.log('Erro ao obter usuário:', e.message);
             } finally {
@@ -59,7 +54,7 @@ export default function HomeScreen({ navigation }) {
     }
 
     const displayName = user?.nome || user?.email || 'usuário';
-
+    console.log('Usuário logado:', user);
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Bem-vindo, {displayName}!</Text>

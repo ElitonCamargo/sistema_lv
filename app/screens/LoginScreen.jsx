@@ -23,14 +23,16 @@ export default function LoginScreen({ navigation }) {
             const json = await res.json();
             if (json.success) {
                 await AsyncStorage.setItem('token', json.data.token);
+                await AsyncStorage.setItem('usuario', JSON.stringify(json.data.usuario));
                 Alert.alert('Sucesso', json.message);
-                alert('Sucesso', json.message);
                 setEmail('');
                 setSenha('');
                 navigation.navigate('Home');
                 // aqui você pode navegar para a tela principal do app
             } else {
                 Alert.alert('Erro', json.message || 'Login falhou');
+                alert(`Erro: ${json.message || 'Login falhou'}`);
+                console.log('Login falhou:', json); // Log para depuração
             }
         } catch (e) {
             Alert.alert('Erro', e.message);
@@ -41,7 +43,7 @@ export default function LoginScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Faça login - </Text>
+            <Text style={styles.title}>Faça login</Text>
             <TextInput
                 placeholder="Email"
                 value={email}
